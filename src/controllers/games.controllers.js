@@ -11,8 +11,8 @@ async function listGames(_, res) {
 
 async function createGame(req, res) {
   try {
-    const results = await db.searchGameByName(req.body);
-    if (results[0]) {
+    const result = await db.searchGameByName(req.body);
+    if (result) {
       return res.sendStatus(409);
     }
     await db.createGame(req.body);
