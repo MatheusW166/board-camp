@@ -19,6 +19,13 @@ async function searchGameByName({ name }) {
   return result.rows[0];
 }
 
+async function searchGameById({ id }) {
+  const result = await connection.query("SELECT * FROM games WHERE id=$1;", [
+    id,
+  ]);
+  return result.rows[0];
+}
+
 async function listCustomers() {
   const result = await connection.query("SELECT * FROM customers;");
   return result.rows;
@@ -55,13 +62,53 @@ async function updateCustomer({ id, name, phone, cpf, birthday }) {
   return rowCount;
 }
 
-function listRentals() {}
+async function listRentals() {
+  const result = await connection.query(`SELECT
+	r.*,
+	c.name AS "customerName",
+	g.name AS "gameName"
+	FROM games g
+	INNER JOIN rentals r ON r."gameId"=g.id
+	INNER JOIN customers c ON c.id=r."customerId";`);
 
-function createRental(rental) {}
+  return result.rows.map((row) => {
+    row.customer = {
+      id: row.customerId,
+      name: row.customerName,
+    };
+    row.game = {
+      id: row.gameId,
+      name: row.gameName,
+    };
+    delete row.customerName;
+    delete row.gameName;
+    return row;
+  });
+}
+
+async function createRental({ customerId, gameId, pricePerDay, daysRented }) {
+  const today = new Date().toISOString();
+  const originalPrice = pricePerDay * daysRented;
+
+  await connection.query(
+    `INSERT INTO rentals ("customerId","gameId","daysRented","rentDate","originalPrice") 
+    VALUES ($1,$2,$3,$4,$5);`,
+    [customerId, gameId, daysRented, today, originalPrice]
+  );
+}
 
 function finishRental() {}
 
 function deleteRental(id) {}
+
+async function countGameRentals({ id }) {
+  const result = await connection.query(
+    `SELECT COUNT(*) FROM rentals WHERE "gameId"=$1 AND "returnDate" IS NULL;`,
+    [id]
+  );
+
+  return result.rows[0].count;
+}
 
 const db = {
   createCustomer,
@@ -76,6 +123,8 @@ const db = {
   listGames,
   searchGameByName,
   searchCustomerByCpf,
+  searchGameById,
+  countGameRentals,
 };
 
 export default db;
