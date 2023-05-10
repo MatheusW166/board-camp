@@ -1,6 +1,6 @@
 import connection from "../db/postgres.connection.js";
 
-async function listGames({ name }) {
+async function listGames({ name, offset, limit }) {
   let query = "SELECT * FROM games WHERE 1=1";
 
   const params = [];
@@ -8,6 +8,16 @@ async function listGames({ name }) {
     name += "%";
     params.push(name);
     query += ` AND name ILIKE $${params.length}`;
+  }
+
+  if (limit) {
+    params.push(limit);
+    query += ` LIMIT $${params.length}`;
+  }
+
+  if (offset) {
+    params.push(offset);
+    query += ` OFFSET $${params.length}`;
   }
 
   const result = await connection.query(`${query};`, params);
