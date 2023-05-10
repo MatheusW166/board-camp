@@ -21,7 +21,6 @@ async function listRentals(req, res) {
       })
     );
   } catch (err) {
-    console.log(err.message);
     res.sendStatus(500);
   }
 }

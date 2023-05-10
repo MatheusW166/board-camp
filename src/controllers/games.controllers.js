@@ -7,7 +7,6 @@ async function listGames(req, res) {
       await db.listGames({ name: name?.trim(), offset, limit, order, desc })
     );
   } catch (err) {
-    console.log(err);
     res.sendStatus(500);
   }
 }
@@ -21,7 +20,6 @@ async function createGame(req, res) {
     await db.createGame(req.body);
     res.sendStatus(201);
   } catch (err) {
-    console.log(err);
     res.sendStatus(500);
   }
 }

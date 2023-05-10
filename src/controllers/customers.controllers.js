@@ -28,12 +28,9 @@ async function createCustomer(req, res) {
     const result = await db.searchCustomerByCpf(req.body);
     if (result) return res.sendStatus(409);
 
-    console.log(result);
-
     await db.createCustomer(req.body);
     res.sendStatus(201);
   } catch (err) {
-    console.log(err);
     res.sendStatus(500);
   }
 }
