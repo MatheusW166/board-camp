@@ -4,4 +4,8 @@ function checkGameColumn(columnName) {
   );
 }
 
-export { checkGameColumn };
+function checkCustomerColumn(columnName) {
+  return ["id", "name", "phone", "cpf", "birthday"].includes(columnName);
+}
+
+export { checkGameColumn, checkCustomerColumn };
