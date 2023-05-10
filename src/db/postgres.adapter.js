@@ -113,7 +113,13 @@ async function returnRental({ id, delayFee = 0 }) {
   return rowCount;
 }
 
-function deleteRental(id) {}
+async function deleteRental({ id }) {
+  const { rowCount } = await connection.query(
+    `DELETE FROM rentals WHERE id=$1;`,
+    [id]
+  );
+  return rowCount;
+}
 
 async function countGameRentals({ id }) {
   const result = await connection.query(

@@ -53,4 +53,21 @@ async function returnRental(req, res) {
   }
 }
 
-export { listRentals, createRental, returnRental };
+async function deleteRental(req, res) {
+  const { id } = req.params;
+  try {
+    const rent = await db.searchRentalById({ id });
+    if (!rent) return res.sendStatus(404);
+
+    if (!rent.returnDate) return res.sendStatus(400);
+
+    const deletedCount = await db.deleteRental({ id });
+    if (deletedCount === 0) return res.sendStatus(400);
+
+    res.sendStatus(200);
+  } catch (err) {
+    res.sendStatus(500);
+  }
+}
+
+export { listRentals, createRental, returnRental, deleteRental };
