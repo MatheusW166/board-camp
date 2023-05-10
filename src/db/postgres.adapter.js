@@ -97,7 +97,21 @@ async function createRental({ customerId, gameId, pricePerDay, daysRented }) {
   );
 }
 
-function finishRental() {}
+async function searchRentalById({ id }) {
+  const result = await connection.query("SELECT * FROM rentals WHERE id=$1;", [
+    id,
+  ]);
+  return result.rows[0];
+}
+
+async function returnRental({ id, delayFee = 0 }) {
+  const returnDate = new Date().toISOString();
+  const { rowCount } = await connection.query(
+    `UPDATE rentals SET "returnDate"=$1,"delayFee"=$2 WHERE id=$3;`,
+    [returnDate, delayFee, id]
+  );
+  return rowCount;
+}
 
 function deleteRental(id) {}
 
@@ -115,7 +129,7 @@ const db = {
   createGame,
   createRental,
   deleteRental,
-  finishRental,
+  returnRental,
   listCustomers,
   updateCustomer,
   searchCustomerById,
@@ -125,6 +139,7 @@ const db = {
   searchCustomerByCpf,
   searchGameById,
   countGameRentals,
+  searchRentalById,
 };
 
 export default db;
