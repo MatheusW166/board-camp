@@ -1,7 +1,7 @@
 import connection from "../db/postgres.connection.js";
 import { checkCustomerColumn } from "../utils/column.utils.js";
 
-async function listCustomers({ cpf, offset, limit, order, desc }) {
+async function listCustomers({ cpf, offset, limit, order, desc = false }) {
   let query = "SELECT * FROM customers WHERE 1=1";
 
   const params = [];
@@ -12,7 +12,7 @@ async function listCustomers({ cpf, offset, limit, order, desc }) {
   }
 
   if (checkCustomerColumn(order)) {
-    query += ` ORDER BY ${order} ${desc ? "DESC" : "ASC"}`;
+    query += ` ORDER BY "${order}" ${desc ? "DESC" : "ASC"}`;
   }
 
   if (limit) {

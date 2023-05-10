@@ -12,7 +12,7 @@ async function listGames({ name, offset, limit, order, desc = false }) {
   }
 
   if (checkGameColumn(order)) {
-    query += ` ORDER BY ${order} ${desc ? "DESC" : "ASC"}`;
+    query += ` ORDER BY "${order}" ${desc ? "DESC" : "ASC"}`;
   }
 
   if (limit) {
