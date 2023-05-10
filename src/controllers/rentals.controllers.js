@@ -1,8 +1,9 @@
 import db from "../db/postgres.adapter.js";
 
-async function listRentals(_, res) {
+async function listRentals(req, res) {
+  const { customerId, gameId } = req.query;
   try {
-    res.send(await db.listRentals());
+    res.send(await db.listRentals({ customerId, gameId }));
   } catch (err) {
     res.sendStatus(500);
   }

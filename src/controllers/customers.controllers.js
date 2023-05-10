@@ -1,8 +1,17 @@
 import db from "../db/postgres.adapter.js";
 
-async function listCustomers(_, res) {
+async function listCustomers(req, res) {
+  const { cpf } = req.query;
   try {
-    res.send(await db.listCustomers());
+    let result;
+
+    if (cpf) {
+      result = await db.listCustomersByCpf({ cpf });
+    } else {
+      result = await db.listCustomers();
+    }
+
+    res.send(result);
   } catch (err) {
     res.sendStatus(500);
   }

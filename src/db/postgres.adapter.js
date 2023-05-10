@@ -1,5 +1,14 @@
 import connection from "./postgres.connection.js";
 
+async function listGamesByName({ name }) {
+  name += "%";
+  const result = await connection.query(
+    `SELECT * FROM games WHERE name ILIKE $1;`,
+    [name]
+  );
+  return result.rows;
+}
+
 async function listGames() {
   const result = await connection.query("SELECT * FROM games;");
   return result.rows;
@@ -26,6 +35,15 @@ async function searchGameById({ id }) {
   return result.rows[0];
 }
 
+async function listCustomersByCpf({ cpf }) {
+  cpf += "%";
+  const result = await connection.query(
+    `SELECT * FROM customers WHERE cpf LIKE $1;`,
+    [cpf]
+  );
+  return result.rows;
+}
+
 async function listCustomers() {
   const result = await connection.query("SELECT * FROM customers;");
   return result.rows;
@@ -40,6 +58,7 @@ async function searchCustomerById({ id }) {
 }
 
 async function searchCustomerByCpf({ cpf }) {
+  cpf += "%";
   const result = await connection.query(
     "SELECT * FROM customers WHERE cpf=$1;",
     [cpf]
@@ -62,14 +81,25 @@ async function updateCustomer({ id, name, phone, cpf, birthday }) {
   return rowCount;
 }
 
-async function listRentals() {
-  const result = await connection.query(`SELECT
+async function listRentals({ customerId, gameId }) {
+  let query = `SELECT
 	r.*,
 	c.name AS "customerName",
 	g.name AS "gameName"
 	FROM games g
 	INNER JOIN rentals r ON r."gameId"=g.id
-	INNER JOIN customers c ON c.id=r."customerId";`);
+	INNER JOIN customers c ON c.id=r."customerId"`;
+
+  const parameters = [];
+  if (customerId) {
+    parameters.push(customerId);
+    query += ` WHERE r."customerId"=$${parameters.length}`;
+  } else if (gameId) {
+    parameters.push(gameId);
+    query += ` WHERE r."gameId"=$${parameters.length}`;
+  }
+
+  const result = await connection.query(`${query};`, parameters);
 
   return result.rows.map((row) => {
     row.customer = {
@@ -146,6 +176,8 @@ const db = {
   searchGameById,
   countGameRentals,
   searchRentalById,
+  listGamesByName,
+  listCustomersByCpf,
 };
 
 export default db;

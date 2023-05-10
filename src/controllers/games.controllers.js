@@ -1,10 +1,17 @@
 import db from "../db/postgres.adapter.js";
 
-async function listGames(_, res) {
+async function listGames(req, res) {
+  const { name } = req.query;
   try {
-    const result = await db.listGames();
+    let result;
+    if (name) {
+      result = await db.listGamesByName({ name: name?.trim() });
+    } else {
+      result = await db.listGames();
+    }
     res.send(result);
   } catch (err) {
+    console.log(err);
     res.sendStatus(500);
   }
 }
