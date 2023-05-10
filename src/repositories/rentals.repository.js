@@ -1,7 +1,15 @@
 import connection from "../db/postgres.connection.js";
+import { checkRentalColumn } from "../utils/column.utils.js";
 import { rowToRental } from "../utils/row.utils.js";
 
-async function listRentals({ customerId, gameId, offset, limit }) {
+async function listRentals({
+  customerId,
+  gameId,
+  offset,
+  limit,
+  order,
+  desc = false,
+}) {
   let query = `SELECT
     r.*,
     c.name AS "customerName",
@@ -19,6 +27,10 @@ async function listRentals({ customerId, gameId, offset, limit }) {
   if (gameId) {
     parameters.push(gameId);
     query += ` AND r."gameId"=$${parameters.length}`;
+  }
+
+  if (checkRentalColumn(order)) {
+    query += ` ORDER BY "${order}" ${desc ? "DESC" : "ASC"}`;
   }
 
   if (limit) {

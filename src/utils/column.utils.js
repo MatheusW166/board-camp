@@ -8,4 +8,17 @@ function checkCustomerColumn(columnName) {
   return ["id", "name", "phone", "cpf", "birthday"].includes(columnName);
 }
 
-export { checkGameColumn, checkCustomerColumn };
+function checkRentalColumn(columnName) {
+  return [
+    "id",
+    "customerId",
+    "gameId",
+    "rentDate",
+    "daysRented",
+    "returnDate",
+    "originalPrice",
+    "delayFee",
+  ].includes(columnName);
+}
+
+export { checkGameColumn, checkCustomerColumn, checkRentalColumn };

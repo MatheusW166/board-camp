@@ -5,10 +5,17 @@ import {
 } from "../repositories/index.js";
 
 async function listRentals(req, res) {
-  const { customerId, gameId, offset, limit } = req.query;
+  const { customerId, gameId, offset, limit, order, desc } = req.query;
   try {
     res.send(
-      await rentalRepository.listRentals({ customerId, gameId, offset, limit })
+      await rentalRepository.listRentals({
+        customerId,
+        gameId,
+        offset,
+        limit,
+        order,
+        desc,
+      })
     );
   } catch (err) {
     res.sendStatus(500);
