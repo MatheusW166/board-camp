@@ -1,6 +1,7 @@
 import connection from "../db/postgres.connection.js";
+import { checkGameColumn } from "../utils/column.utils.js";
 
-async function listGames({ name, offset, limit }) {
+async function listGames({ name, offset, limit, order, desc = false }) {
   let query = "SELECT * FROM games WHERE 1=1";
 
   const params = [];
@@ -8,6 +9,10 @@ async function listGames({ name, offset, limit }) {
     name += "%";
     params.push(name);
     query += ` AND name ILIKE $${params.length}`;
+  }
+
+  if (checkGameColumn(order)) {
+    query += ` ORDER BY ${order} ${desc ? "DESC" : "ASC"}`;
   }
 
   if (limit) {

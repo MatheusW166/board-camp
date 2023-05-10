@@ -1,10 +1,13 @@
 import { gameRepository as db } from "../repositories/index.js";
 
 async function listGames(req, res) {
-  const { name, offset, limit } = req.query;
+  const { name, offset, limit, order, desc } = req.query;
   try {
-    res.send(await db.listGames({ name: name?.trim(), offset, limit }));
+    res.send(
+      await db.listGames({ name: name?.trim(), offset, limit, order, desc })
+    );
   } catch (err) {
+    console.log(err);
     res.sendStatus(500);
   }
 }
