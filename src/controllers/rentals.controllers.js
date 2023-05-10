@@ -5,9 +5,11 @@ import {
 } from "../repositories/index.js";
 
 async function listRentals(req, res) {
-  const { customerId, gameId } = req.query;
+  const { customerId, gameId, offset, limit } = req.query;
   try {
-    res.send(await rentalRepository.listRentals({ customerId, gameId }));
+    res.send(
+      await rentalRepository.listRentals({ customerId, gameId, offset, limit })
+    );
   } catch (err) {
     res.sendStatus(500);
   }

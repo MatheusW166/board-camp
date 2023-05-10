@@ -1,27 +1,37 @@
 import connection from "../db/postgres.connection.js";
 import { rowToRental } from "../utils/row.utils.js";
 
-async function listRentals({ customerId, gameId }) {
+async function listRentals({ customerId, gameId, offset, limit }) {
   let query = `SELECT
-      r.*,
-      c.name AS "customerName",
-      g.name AS "gameName"
-      FROM rentals r
-      INNER JOIN games g ON r."gameId"=g.id
-      INNER JOIN customers c ON c.id=r."customerId" WHERE 1=1`;
+    r.*,
+    c.name AS "customerName",
+    g.name AS "gameName"
+    FROM rentals r
+    INNER JOIN games g ON r."gameId"=g.id
+    INNER JOIN customers c ON c.id=r."customerId" WHERE 1=1`;
 
   const parameters = [];
   if (customerId) {
     parameters.push(customerId);
     query += ` AND r."customerId"=$${parameters.length}`;
   }
+
   if (gameId) {
     parameters.push(gameId);
     query += ` AND r."gameId"=$${parameters.length}`;
   }
 
-  const result = await connection.query(`${query};`, parameters);
+  if (limit) {
+    parameters.push(limit);
+    query += ` LIMIT $${parameters.length}`;
+  }
 
+  if (offset) {
+    parameters.push(offset);
+    query += ` OFFSET $${parameters.length}`;
+  }
+
+  const result = await connection.query(`${query};`, parameters);
   return result.rows.map(rowToRental);
 }
 
