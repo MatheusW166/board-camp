@@ -51,6 +51,10 @@ async function createRental(req, res) {
   }
 }
 
+function calcDelayInDays(startDate, endDate) {
+  return Math.trunc((endDate - startDate) / (1000 * 3600 * 24));
+}
+
 async function returnRental(req, res) {
   const { id } = req.params;
   try {
@@ -63,9 +67,9 @@ async function returnRental(req, res) {
     const rentDate = new Date(rent.rentDate).getTime();
     const returnDate = Date.now();
 
-    const delayInDays = Math.trunc(
-      (returnDate - rentDate) / (1000 * 3600 * 24)
-    );
+    const daysRented = rent.daysRented;
+    const delayInDays = calcDelayInDays(rentDate, returnDate) - daysRented;
+
     const delayFee = delayInDays * game.pricePerDay;
 
     const updatedCount = await rentalRepository.returnRental({ id, delayFee });
