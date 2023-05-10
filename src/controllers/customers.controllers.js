@@ -42,7 +42,7 @@ async function updateCustomer(req, res) {
     if (!customerFoundId) return res.sendStatus(404);
 
     const result = await db.searchCustomerByCpf(req.body);
-    if (result?.id !== Number(id)) return res.sendStatus(409);
+    if (result && result.id !== Number(id)) return res.sendStatus(409);
 
     const updatedCount = await db.updateCustomer({ id, ...req.body });
     if (updatedCount === 0) return res.sendStatus(404);
