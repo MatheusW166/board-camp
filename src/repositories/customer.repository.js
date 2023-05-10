@@ -1,6 +1,6 @@
 import connection from "../db/postgres.connection.js";
 
-async function listCustomers({ cpf }) {
+async function listCustomers({ cpf, offset, limit }) {
   let query = "SELECT * FROM customers WHERE 1=1";
 
   const params = [];
@@ -8,6 +8,16 @@ async function listCustomers({ cpf }) {
     cpf += "%";
     params.push(cpf);
     query += ` AND cpf LIKE $${params.length}`;
+  }
+
+  if (limit) {
+    params.push(limit);
+    query += ` LIMIT $${params.length}`;
+  }
+
+  if (offset) {
+    params.push(offset);
+    query += ` OFFSET $${params.length}`;
   }
 
   const result = await connection.query(`${query};`, params);

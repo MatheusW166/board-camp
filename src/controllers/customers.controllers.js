@@ -1,9 +1,9 @@
 import { customerRepository as db } from "../repositories/index.js";
 
 async function listCustomers(req, res) {
-  const { cpf } = req.query;
+  const { cpf, offset, limit } = req.query;
   try {
-    res.send(await db.listCustomers({ cpf: cpf?.trim() }));
+    res.send(await db.listCustomers({ cpf: cpf?.trim(), offset, limit }));
   } catch (err) {
     res.sendStatus(500);
   }
