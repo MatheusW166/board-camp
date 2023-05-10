@@ -1,4 +1,5 @@
 import connection from "./postgres.connection.js";
+import { rowToRental } from "../utils/row.utils.js";
 
 async function listGamesByName({ name }) {
   name += "%";
@@ -86,34 +87,23 @@ async function listRentals({ customerId, gameId }) {
 	r.*,
 	c.name AS "customerName",
 	g.name AS "gameName"
-	FROM games g
-	INNER JOIN rentals r ON r."gameId"=g.id
-	INNER JOIN customers c ON c.id=r."customerId"`;
+	FROM rentals r
+	INNER JOIN games g ON r."gameId"=g.id
+	INNER JOIN customers c ON c.id=r."customerId" WHERE 1=1`;
 
   const parameters = [];
   if (customerId) {
     parameters.push(customerId);
-    query += ` WHERE r."customerId"=$${parameters.length}`;
-  } else if (gameId) {
+    query += ` AND r."customerId"=$${parameters.length}`;
+  }
+  if (gameId) {
     parameters.push(gameId);
-    query += ` WHERE r."gameId"=$${parameters.length}`;
+    query += ` AND r."gameId"=$${parameters.length}`;
   }
 
   const result = await connection.query(`${query};`, parameters);
 
-  return result.rows.map((row) => {
-    row.customer = {
-      id: row.customerId,
-      name: row.customerName,
-    };
-    row.game = {
-      id: row.gameId,
-      name: row.gameName,
-    };
-    delete row.customerName;
-    delete row.gameName;
-    return row;
-  });
+  return result.rows.map(rowToRental);
 }
 
 async function createRental({ customerId, gameId, pricePerDay, daysRented }) {
