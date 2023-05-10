@@ -1,16 +1,16 @@
 import connection from "../db/postgres.connection.js";
 
-async function listCustomersByCpf({ cpf }) {
-  cpf += "%";
-  const result = await connection.query(
-    `SELECT * FROM customers WHERE cpf LIKE $1;`,
-    [cpf]
-  );
-  return result.rows;
-}
+async function listCustomers({ cpf }) {
+  let query = "SELECT * FROM customers WHERE 1=1";
 
-async function listCustomers() {
-  const result = await connection.query("SELECT * FROM customers;");
+  const params = [];
+  if (cpf) {
+    cpf += "%";
+    params.push(cpf);
+    query += ` AND cpf LIKE $${params.length}`;
+  }
+
+  const result = await connection.query(`${query};`, params);
   return result.rows;
 }
 
@@ -48,7 +48,6 @@ async function updateCustomer({ id, name, phone, cpf, birthday }) {
 const customerRepository = {
   createCustomer,
   listCustomers,
-  listCustomersByCpf,
   searchCustomerByCpf,
   searchCustomerById,
   updateCustomer,

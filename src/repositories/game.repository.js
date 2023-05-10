@@ -1,16 +1,16 @@
 import connection from "../db/postgres.connection.js";
 
-async function listGamesByName({ name }) {
-  name += "%";
-  const result = await connection.query(
-    `SELECT * FROM games WHERE name ILIKE $1;`,
-    [name]
-  );
-  return result.rows;
-}
+async function listGames({ name }) {
+  let query = "SELECT * FROM games WHERE 1=1";
 
-async function listGames() {
-  const result = await connection.query("SELECT * FROM games;");
+  const params = [];
+  if (name) {
+    name += "%";
+    params.push(name);
+    query += ` AND name ILIKE $${params.length}`;
+  }
+
+  const result = await connection.query(`${query};`, params);
   return result.rows;
 }
 
@@ -38,7 +38,6 @@ async function searchGameById({ id }) {
 const gameRepository = {
   createGame,
   listGames,
-  listGamesByName,
   searchGameById,
   searchGameByName,
 };

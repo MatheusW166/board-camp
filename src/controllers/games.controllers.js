@@ -3,15 +3,8 @@ import { gameRepository as db } from "../repositories/index.js";
 async function listGames(req, res) {
   const { name } = req.query;
   try {
-    let result;
-    if (name) {
-      result = await db.listGamesByName({ name: name?.trim() });
-    } else {
-      result = await db.listGames();
-    }
-    res.send(result);
+    res.send(await db.listGames({ name: name?.trim() }));
   } catch (err) {
-    console.log(err);
     res.sendStatus(500);
   }
 }
