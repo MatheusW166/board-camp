@@ -1,12 +1,15 @@
 import connection from "../db/postgres.connection.js";
 import { checkRentalColumn } from "../utils/column.utils.js";
 import { rowToRental } from "../utils/row.utils.js";
+import { validateDate } from "../utils/date.utils.js";
 
 async function listRentals({
   customerId,
   gameId,
   offset,
   limit,
+  status,
+  startDate,
   order,
   desc = false,
 }) {
@@ -27,6 +30,16 @@ async function listRentals({
   if (gameId) {
     parameters.push(gameId);
     query += ` AND r."gameId"=$${parameters.length}`;
+  }
+
+  if (["open", "closed"].includes(status)) {
+    const isReturnDateNull = status === "open";
+    query += ` AND r."returnDate" IS ${isReturnDateNull ? "" : "NOT"} NULL`;
+  }
+
+  if (validateDate(startDate)) {
+    parameters.push(startDate);
+    query += ` AND r."rentDate" >= $${parameters.length}`;
   }
 
   if (checkRentalColumn(order)) {
