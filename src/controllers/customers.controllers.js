@@ -1,4 +1,4 @@
-import db from "../db/postgres.adapter.js";
+import { customerRepository as db } from "../repositories/index.js";
 
 async function listCustomers(req, res) {
   const { cpf } = req.query;
@@ -33,6 +33,8 @@ async function createCustomer(req, res) {
   try {
     const result = await db.searchCustomerByCpf(req.body);
     if (result) return res.sendStatus(409);
+
+    console.log(result);
 
     await db.createCustomer(req.body);
     res.sendStatus(201);

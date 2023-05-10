@@ -1,4 +1,4 @@
-import db from "../db/postgres.adapter.js";
+import { gameRepository as db } from "../repositories/index.js";
 
 async function listGames(req, res) {
   const { name } = req.query;

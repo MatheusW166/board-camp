@@ -1,9 +1,13 @@
-import db from "../db/postgres.adapter.js";
+import {
+  rentalRepository,
+  customerRepository,
+  gameRepository,
+} from "../repositories/index.js";
 
 async function listRentals(req, res) {
   const { customerId, gameId } = req.query;
   try {
-    res.send(await db.listRentals({ customerId, gameId }));
+    res.send(await rentalRepository.listRentals({ customerId, gameId }));
   } catch (err) {
     res.sendStatus(500);
   }
@@ -12,16 +16,23 @@ async function listRentals(req, res) {
 async function createRental(req, res) {
   const { customerId, gameId } = req.body;
   try {
-    const customer = await db.searchCustomerById({ id: customerId });
+    const customer = await customerRepository.searchCustomerById({
+      id: customerId,
+    });
     if (!customer) return res.sendStatus(400);
 
-    const game = await db.searchGameById({ id: gameId });
+    const game = await gameRepository.searchGameById({ id: gameId });
     if (!game) return res.sendStatus(400);
 
-    const rentalsCount = await db.countGameRentals({ id: gameId });
+    const rentalsCount = await rentalRepository.countGameRentals({
+      id: gameId,
+    });
     if (rentalsCount >= game.stockTotal) return res.sendStatus(400);
 
-    await db.createRental({ ...req.body, pricePerDay: game.pricePerDay });
+    await rentalRepository.createRental({
+      ...req.body,
+      pricePerDay: game.pricePerDay,
+    });
     res.sendStatus(201);
   } catch (err) {
     res.sendStatus(500);
@@ -31,11 +42,11 @@ async function createRental(req, res) {
 async function returnRental(req, res) {
   const { id } = req.params;
   try {
-    const rent = await db.searchRentalById({ id });
+    const rent = await rentalRepository.searchRentalById({ id });
     if (!rent) return res.sendStatus(404);
 
     if (rent.returnDate) return res.sendStatus(400);
-    const game = await db.searchGameById({ id: rent.gameId });
+    const game = await gameRepository.searchGameById({ id: rent.gameId });
 
     const rentDate = new Date(rent.rentDate).getTime();
     const returnDate = Date.now();
@@ -45,7 +56,7 @@ async function returnRental(req, res) {
     );
     const delayFee = delayInDays * game.pricePerDay;
 
-    const updatedCount = await db.returnRental({ id, delayFee });
+    const updatedCount = await rentalRepository.returnRental({ id, delayFee });
     if (updatedCount === 0) return res.sendStatus(400);
 
     res.sendStatus(200);
@@ -57,12 +68,12 @@ async function returnRental(req, res) {
 async function deleteRental(req, res) {
   const { id } = req.params;
   try {
-    const rent = await db.searchRentalById({ id });
+    const rent = await rentalRepository.searchRentalById({ id });
     if (!rent) return res.sendStatus(404);
 
     if (!rent.returnDate) return res.sendStatus(400);
 
-    const deletedCount = await db.deleteRental({ id });
+    const deletedCount = await rentalRepository.deleteRental({ id });
     if (deletedCount === 0) return res.sendStatus(400);
 
     res.sendStatus(200);
