@@ -70,7 +70,7 @@ async function returnRental(req, res) {
     const daysRented = rent.daysRented;
     const delayInDays = calcDelayInDays(rentDate, returnDate) - daysRented;
 
-    const delayFee = delayInDays * game.pricePerDay;
+    const delayFee = (delayInDays < 0 ? 0 : delayInDays) * game.pricePerDay;
 
     const updatedCount = await rentalRepository.returnRental({ id, delayFee });
     if (updatedCount === 0) return res.sendStatus(400);
